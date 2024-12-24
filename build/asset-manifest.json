@@ -1,0 +1,23 @@
+{
+  "files": {
+    "main.css": "/static/css/main.fd2f46f6.chunk.css",
+    "main.js": "/static/js/main.be1cda33.chunk.js",
+    "main.js.map": "/static/js/main.be1cda33.chunk.js.map",
+    "runtime-main.js": "/static/js/runtime-main.70e236ca.js",
+    "runtime-main.js.map": "/static/js/runtime-main.70e236ca.js.map",
+    "static/js/2.c749fdba.chunk.js": "/static/js/2.c749fdba.chunk.js",
+    "static/js/2.c749fdba.chunk.js.map": "/static/js/2.c749fdba.chunk.js.map",
+    "index.html": "/index.html",
+    "static/css/main.fd2f46f6.chunk.css.map": "/static/css/main.fd2f46f6.chunk.css.map",
+    "static/js/2.c749fdba.chunk.js.LICENSE.txt": "/static/js/2.c749fdba.chunk.js.LICENSE.txt",
+    "static/media/ExitIMG.9e4137a8.png": "/static/media/ExitIMG.9e4137a8.png",
+    "static/media/TempoLogo.baf494b3.png": "/static/media/TempoLogo.baf494b3.png",
+    "static/media/searchMobile.8c0f7c09.png": "/static/media/searchMobile.8c0f7c09.png"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.70e236ca.js",
+    "static/js/2.c749fdba.chunk.js",
+    "static/css/main.fd2f46f6.chunk.css",
+    "static/js/main.be1cda33.chunk.js"
+  ]
+}
