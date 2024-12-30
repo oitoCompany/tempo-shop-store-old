@@ -110,6 +110,7 @@ export default function Product(props) {
     addToCart(CurrentProduct);
     setclickOnAddToCart(false);
     clearTimeout(timeOut);
+    handelShowCart(); 
   }
 
   const addCartOneElig = (selectedProduct) => {
