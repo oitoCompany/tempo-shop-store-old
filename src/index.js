@@ -40,7 +40,7 @@ export default function App() {
   const [cart, setcart] = useState([]);
   const [disabled, setdisabled] = useState(false);
   const [totalItems, settotalItems] = useState(0);
-
+  const [ZAKAUT,setZAKAUT] = useState([]); 
   const [totalAmount, settotalAmount] = useState(0);
   const [swSearchingFor, setswSearchingFor] = useState("term");
   const [term, setterm] = useState("");
@@ -73,7 +73,7 @@ export default function App() {
   const [txtOrderNum, settxtOrderNum] = useState("");
   const [isEnableBTN, setisEnableBTN] = useState(false);
   const [isPower, setisPower] = useState(false);
-
+  const [Categoriestosend,setCategoriestosend] = useState([]);
   // const zakot =  [
   //   {
   //       "CATEGORY": "B",
@@ -138,7 +138,7 @@ export default function App() {
   //         },
   //         {
   //             "MATNR": "000000000007001048",
-  //             "EAN11": "5010677554398",
+  //             "EAN11": "5000299605004",
   //             "MAKTX": "בקרדי בריזר אבטיח 275 בקבוק 24 יח'",
   //            // "YFILE": "HTTP://STOREIIS/EMPSTORE/000000000007001048.JPG",
   //             "YDESERVE_TYPE": "B",
@@ -4345,8 +4345,11 @@ export default function App() {
       JSON.stringify({ 'TAG': EmployeeTag })
     ).then(response => {
       const CurrentEmployeeDetails = response.data.EMP_DATA
+
       if (CurrentEmployeeDetails["ZAKAUT"].length > 0) {
+
         setEligibility(CurrentEmployeeDetails["ZAKAUT"]);
+      //setZAKAUT(CurrentEmployeeDetails["ZAKAUT"]);
         setemployees(CurrentEmployeeDetails["EMPLOYEE"]);
         setCreateActive(true);
         setEmployeeName(CurrentEmployeeDetails["EMPLOYEE"].NAME);
@@ -4425,8 +4428,8 @@ export default function App() {
   const clearInformations = () => {
     setisCartWinVisible(false);
     setcart([]);
-    setCatalog([]);
-    getProducts();
+    // setCatalog([]);
+    // getProducts();
     setloading(false);
     settotalAmount(0);
     settotalItems(0);
@@ -4463,7 +4466,8 @@ export default function App() {
     getCategories();
     getProducts();
     getCatalog();
-  }, []);
+    handelShowCart();
+  }, [cart]);
 
   let curProductId;
 
@@ -4493,6 +4497,61 @@ export default function App() {
     setcategoriesList(categoriesList_l);
 
     handleCategory(event._targetInst.key);
+
+
+    let updatedCategoriesToSend = [...Categoriestosend];
+    const categoryExists = updatedCategoriesToSend.some(
+      (category) => category.LOW === value
+    );
+    
+    if (!categoryExists) {
+      updatedCategoriesToSend = [
+        ...updatedCategoriesToSend,
+        { SIGN: "I", OPTION: "EQ", LOW: value }
+      ];
+    } else {
+      updatedCategoriesToSend = updatedCategoriesToSend.filter(
+        (category) => category.LOW !== value
+      );
+    }
+    updatedCategoriesToSend = updatedCategoriesToSend.filter(
+      (category, index, self) =>
+        self.findIndex((c) => c.LOW === category.LOW) === index
+    );
+    
+    // Now updatedCategoriesToSend will have no duplicates and will append/remove categories as needed
+    setCategoriestosend(updatedCategoriesToSend);
+    
+    // Construct the payload with the updated categories
+    const payload = {
+        CATEGORY: updatedCategoriesToSend,
+        SEARCH: term,
+    };
+
+    console.log("Payload:", payload);
+       
+    // if(updatedCategoriesToSend.length > 0){
+
+       
+           axios.post("/zui5/order/catalog", JSON.stringify(payload))
+            .then((response) => {
+                if (response.data) {
+                  setCatalog(response.data["CATALOG"])
+                  setproducts(response.data["CATALOG"]);
+                }
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
+    // }
+
+
+
+
+
+
+
+
   }
 
   const handleClearSearch = () => {
@@ -4502,8 +4561,26 @@ export default function App() {
 
 
   const handleSearch = (event) => {
-    setterm(event.target.value);
+    setterm(event);
     setswSearchingFor("term");
+    const s = {
+      CATEGORY: [],
+      SEARCH: event
+     }
+     axios.post("/zui5/order/catalog",
+      JSON.stringify(s)).
+      then(response => {
+          if (response.data) {
+
+            console.log(response.data,"from index ");
+            setCatalog(response.data["CATALOG"])
+            setproducts(response.data["CATALOG"]);
+            console.log(response.data["CATALOG"][0],"from index ")
+          }
+          // setmessage(response.data["MESSAGE"])
+      });
+      
+
   }
 
   const handleMobileSearch = () => {
@@ -4512,7 +4589,7 @@ export default function App() {
 
   const handleCategory = (value) => {
     setcategory(value);
-    setterm(value);
+  //  setterm(value);
   }
 
   const handleAddToCart = (selectedProducts) => {
@@ -4650,23 +4727,25 @@ export default function App() {
   }
 
 
-  const increment = (e) => {
+  const increment = (e,p) => {
     e.preventDefault();
-    let index = cart.findIndex(x => x.id === curProductId);
-    if (index >= 0) {
+    let index = cart.findIndex(x => x.id === p.id);
+    let count = Eligibility.filter(a => a.CATEGORY === p.eligibility)[0].QTY;
+    if (index >= 0 && count >= 1) {
       cart[index].quantity++;
       sumTotalAmount(cart);
       setcart(cart);
       handelShowCart();
     }
     e.preventDefault();
+    Eligibilityinde('add', p);
   }
 
-  const decrement = (e) => {
+  const decrement = (e,p) => {
     e.preventDefault();
 
 
-    let index = cart.findIndex(x => x.id === curProductId);
+    let index = cart.findIndex(x => x.id === p.id);
     if (index >= 0 && cart[index].quantity > 1) {
       cart[index].quantity--;
       sumTotalAmount(cart);
@@ -4674,11 +4753,60 @@ export default function App() {
       handelShowCart();
     }
     e.preventDefault();
+    Eligibilityinde('sub', p);
 
   }
   const enAndDisable = (e) => {
     setdisabled(true);
   }
+  
+  const Eligibilityinde = async (event, product) => {
+    let add = event === 'add' ? 1 : -1;
+    let CurrentProduct_l;
+    let empzakot;
+    let currProduct = Catalog[Object.keys(Catalog).filter(a => Catalog[a].EAN11 === product.id && Catalog[a].MATNR === product.matnr)];
+    CurrentProduct_l = currProduct;
+
+    try {
+        const response = await axios.post(
+            "/zui5/order/employee",
+            JSON.stringify({ TAG: EmployeeTag })
+        );
+        const CurrentEmployeeDetails = response.data.EMP_DATA;
+
+        if (CurrentEmployeeDetails["ZAKAUT"].length > 0) {
+            empzakot = CurrentEmployeeDetails["ZAKAUT"].filter(a => a.CATEGORY === product.eligibility)[0]?.QTY || 0;
+        } else {
+            empzakot = 0;
+        }
+
+        console.log(empzakot, "empzakot");
+
+        let count = Eligibility.filter(a => a.CATEGORY === product.eligibility)[0].QTY;
+        const Text = Eligibility.filter(a => a.CATEGORY === product.eligibility)[0].CATEGORY;
+        currProduct.eligibility = Text;
+
+        if (add === 1) {
+            if (count >= CurrentProduct_l.KPEIN) {
+                Eligibility.filter(a => a.CATEGORY === Text)[0].QTY -= CurrentProduct_l.KPEIN;
+            }
+        } else {
+            let index = cart.findIndex(x => x.id === product.id && x.eligibility === product.eligibility);
+            let quantity = cart[index]?.quantity || 0;
+
+            console.log(empzakot - 1, count, "empzakot - 1 > count");
+
+            if (empzakot - 1 > count) {
+                Eligibility.filter(a => a.CATEGORY === Text)[0].QTY += CurrentProduct_l.KPEIN;
+            }
+        }
+
+        handelShowCart();
+    } catch (error) {
+        console.error("Error fetching employee data:", error);
+    }
+};
+
 
   const handelOpenCartWin = () => {
     setisCartWinVisible(!isCartWinVisible);
@@ -4730,8 +4858,8 @@ export default function App() {
                       productQuantity={product.quantity}
                       handleAddQuantity={handleAddQuantity}
                       updateQuantity={updateQuantity}
-                      increment={increment}
-                      decrement={decrement}
+                      increment={(e) =>increment(e, product)}
+                      decrement={(e) =>decrement(e, product)}
                     />
 
                   </div>
@@ -4874,7 +5002,7 @@ export default function App() {
             handleRemoveProduct={handleRemoveProduct}
           />
         }
-        {!isCartWinVisible &&
+        {/* {!isCartWinVisible && */}
           <Products
             ClearChoose={ClearChoose}
             setClearChoose={setClearChoose}
@@ -4895,7 +5023,8 @@ export default function App() {
             updateQuantity={updateQuantity}
             openModal={openModal}
             handleCategory={handleCategory}
-          />}
+          />
+          {/* } */}
         <QuickView
           product={quickViewProduct}
           openModal={modalActive}

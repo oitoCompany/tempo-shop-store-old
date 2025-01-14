@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
-import Counter from "./Counter";
-import { object } from "prop-types";
-import shoppingBasket from '../images/shoppingBasket.png'
+// import React, { useState, useEffect } from "react";
+// import Counter from "./Counter";
+// import { object } from "prop-types";
+// import shoppingBasket from '../images/shoppingBasket.png'
+import React, { useState, useEffect, memo, useCallback } from "react";
+import shoppingBasket from "../images/shoppingBasket.png";
 
-export default function Product(props) {
+const Product = memo(function Product(props) {
   const {
     addToCart,
     handelsetcategoriesOnChoose,
@@ -14,12 +16,14 @@ export default function Product(props) {
     id,
     ClearChoose,
     setClearChoose,
-     handelShowCart,
+    handelShowCart,
+    YDESERVE_TYPE,
     Catalog,
     category,
     productQuantity,
     openModal,
-    Eligibility
+    Eligibility,
+    autoAdd
   } = props;
   const [clickOnAddToCart, setclickOnAddToCart] = useState(false);
   const [isAdded, setisAdded] = useState(false);
@@ -27,21 +31,42 @@ export default function Product(props) {
   const [IsFromProduct, setIsFromProduct] = useState(true);
   const [NotEligibility, setNotEligibility] = useState(null);
   const [ListOfEligibilities, setListOfEligibilities] = useState([]);
- 
+
   let timeOut;
-  let CurrentProduct_l;
+  let   selectedProduct;
   let CurrentProduct;
+  console.log(`Auto-add is enabled for product: ${name} (ID: ${id})`);
+
   const handelbtnClicked = (e) => {
     setclickOnAddToCart(true);
   };
 
-  const productaddToCart = (fimage, fname,fmatnr, fprice, fid, fquantity, fcategory) => {
+  useEffect(() => {
+    if (autoAdd) {
+  
+      productaddToCart(id, name, matnr, price, id, productQuantity, category); // Automatically add the product
+    }
+
+    if (ClearChoose) {
+      resetProductState();
+      setClearChoose(false);
+    }
+  }, [autoAdd, ClearChoose, setClearChoose]);
+
+  const resetProductState = useCallback(() => {
+    setclickOnAddToCart(false);
+    setNotEligibility(null);
+    setisAdded(false);
+  }, []);
+
+
+  const productaddToCart = (fimage, fname, fmatnr, fprice, fid, fquantity, fcategory) => {
 
     setclickOnAddToCart(true);
-    let selectedProduct = ({
+     selectedProduct = ({
       image: fimage,
       name: fname,
-      matnr :fmatnr,
+      matnr: fmatnr,
       price: fprice,
       id: fid,
       quantity: fquantity,
@@ -49,14 +74,11 @@ export default function Product(props) {
     });
 
     CurrentProduct = selectedProduct;
-    let currProduct = Catalog[Object.keys(Catalog).filter(a => Catalog[a].EAN11 === id && Catalog[a].MATNR == matnr)];
-    console.log(currProduct);
-    CurrentProduct_l = currProduct;
-    const Eligibilities = currProduct.YDESERVE_TYPE;
-     let EligibilitiesList = [];
+    let EligibilitiesList = [];
+    const Eligibilities = YDESERVE_TYPE;
     for (let i = 0; i < Eligibilities.length; i++) {
       for (let j = 0; j < Eligibility.length; j++) {
-        if (Eligibilities[i] === Eligibility[j].CATEGORY && Eligibility[j].QTY >= currProduct.KPEIN)
+        if (Eligibilities[i] === Eligibility[j].CATEGORY && Eligibility[j].QTY >= selectedProduct.quantity)
           EligibilitiesList.push(Eligibility[j]);
       }
     }
@@ -66,9 +88,10 @@ export default function Product(props) {
     if (EligibilitiesList.length > 0) {
       if (EligibilitiesList.length === 1) {
         let count = Eligibility.filter(a => a.CATEGORY === EligibilitiesList[0].CATEGORY)[0].QTY;
-        if (count >= CurrentProduct_l.KPEIN) {
-          selectedProduct.eligibility = EligibilitiesList[0].CATEGORY;
-          Eligibility.filter(a => a.CATEGORY === EligibilitiesList[0].CATEGORY)[0].QTY -= CurrentProduct_l.KPEIN;
+        if (count >= selectedProduct.quantity) {
+         selectedProduct.eligibility = EligibilitiesList[0].CATEGORY;
+          
+          Eligibility.filter(a => a.CATEGORY === EligibilitiesList[0].CATEGORY)[0].QTY -= selectedProduct.quantity;
           setListOfEligibilities([]);
           addCartOneElig(selectedProduct);
           setTimeout(() => {
@@ -96,17 +119,15 @@ export default function Product(props) {
       }, 3000);
     }
   
-    handelShowCart();   
-  }
+    handelShowCart();
+};
 
-  const checkEligibility = (value) => {
 
-  }
 
   const handelChooseEligibility = (event) => {
     const Text = Eligibility.filter(a => a.YDESC === event.currentTarget.innerText)[0].CATEGORY;
     CurrentProduct.eligibility = Text;
-    Eligibility.filter(a => a.CATEGORY === Text)[0].QTY -= CurrentProduct_l.KPEIN;
+    Eligibility.filter(a => a.CATEGORY === Text)[0].QTY -= selectedProduct.quantity;
     addToCart(CurrentProduct);
     setclickOnAddToCart(false);
     clearTimeout(timeOut);
@@ -118,16 +139,16 @@ export default function Product(props) {
     setisAdded(true);
 
   }
-  useEffect(() => {
-    if (ClearChoose) {
-      setclickOnAddToCart(false);
-      setNotEligibility(false);
-      setisAdded(false);
-    }
-    setClearChoose(false);
 
-  }, []);
-
+  let clicked = clickOnAddToCart;
+  let pimage = image;
+  let pname = name;
+  let pprice = price;
+  let pmatnr = matnr;
+  let pid = id;
+  let pcategory = category;
+  let pquantity = productQuantity;
+  
   const handelselectedEligibility = (EligibilitiesList) => {
 
     return (
@@ -136,7 +157,7 @@ export default function Product(props) {
           setListOfEligibilities(
             EligibilitiesList.map(
               zacaut => {
-                if (zacaut.QTY >= CurrentProduct_l.KPEIN)
+                if (zacaut.QTY >= productQuantity)
                   return (
                     <button className="eligibilityInput" key={zacaut.YDESC} onClick={handelChooseEligibility} >{zacaut.YDESC}</button>
                   )
@@ -148,46 +169,46 @@ export default function Product(props) {
     )
   }
 
-  const quickView = (qimage, qname, qprice, qid) => {
-
-    let quickViewProduct = {
-      image: qimage,
-      name: qname,
-      price: qprice,
-      id: qid
+  const quickView = useCallback(() => {
+    const quickViewProduct = {
+      image,
+      name,
+      price,
+      id,
     };
+    openModal(quickViewProduct);
+  }, [image, name, price, id, openModal]);
 
-    NotEligibility === null && openModal(quickViewProduct);
-  }
 
   let IsFree = false;
   let IsAnHlf = false;
   let IsAnRe = false;
   let IsWine = false;
 
-  let clicked = clickOnAddToCart;
-  let pimage = image;
-  let pname = name;
-  let pprice = price;
-  let pmatnr = matnr;
-  let pid = id;
-  let pcategory = category;
-  let pquantity = productQuantity;
-  switch (pcategory) {
-    case "vegetables":
-      IsFree = true
-      break;
-    case "fruits":
-      IsAnHlf = true
-      break;
-    case "fruits":
-      IsAnRe = true
-      break;
-    case "nuts":
-      IsWine = true
-      break;
+  // let clicked = clickOnAddToCart;
+  // let pimage = image;
+  // let pname = name;
+  // let pprice = price;
+  // let pmatnr = matnr;
+  // let pid = id;
+  // let pcategory = category;
+  // let pquantity = productQuantity;
+  // switch (pcategory) {
+  //   case "vegetables":
+  //     IsFree = true
+  //     break;
+  //   case "fruits":
+  //     IsAnHlf = true
+  //     break;
+  //   case "fruits":
+  //     IsAnRe = true
+  //     break;
+  //   case "nuts":
+  //     IsWine = true
+  //     break;
 
-  }
+  // }
+  
   return (
     <div className={!clicked ? "product" : "product onclickedDiv"}>
       {!NotEligibility && <div className={!clicked ? "onclickedDiv" : "Eligibilities"}>
@@ -227,7 +248,7 @@ export default function Product(props) {
 
         <button
           className={clicked ? !isAdded ? "btnNotEli" : "added" : !isAdded ? "myAddCartButton" : "added"}
-          type="mybutton"
+          type="mybutton"  
           onClick={() => productaddToCart(
             pimage,
             pname,
@@ -243,7 +264,6 @@ export default function Product(props) {
       </div>
     </div>
   );
-}
+});
 
-
-
+export default Product;

@@ -129,6 +129,13 @@ export default function Header(props) {
       //  createOrder();
 }
 
+const handleSearchClick = () => {
+  if (searchBox.current) {
+    const searchTerm = searchBox.current.value; // Get the input value
+    handleSearch(searchTerm); // Pass the value to the search handler
+  }
+};
+
   const handleOpenCart = ()=>{
    if(cartItems.length > 0)
      handelOpenCartWin();
@@ -242,12 +249,13 @@ export default function Header(props) {
                     ref={searchBox}
                     placeholder="חיפוש פריט"
                     className="search-keyword"
-                     onChange={(e) => handleSearch(e)}
+                   //  onChange={(e) => handleSearch(e)}
                   />
                   <div
                     className="search-button"
                     src={searchIMG}
                     type="submit"
+                    onClick={handleSearchClick}
                   //  onClick={(e) => handleSearch(e)}
                     // onClick={(e) => handleSubmit(e)}
                   >
