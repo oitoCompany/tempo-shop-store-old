@@ -4536,7 +4536,7 @@ export default function App() {
            axios.post("/zui5/order/catalog", JSON.stringify(payload))
             .then((response) => {
                 if (response.data) {
-                  setCatalog(response.data["CATALOG"])
+                 // setCatalog(response.data["CATALOG"])
                   setproducts(response.data["CATALOG"]);
                 }
             })
@@ -4573,7 +4573,7 @@ export default function App() {
           if (response.data) {
 
             console.log(response.data,"from index ");
-            setCatalog(response.data["CATALOG"])
+           // setCatalog(response.data["CATALOG"])
             setproducts(response.data["CATALOG"]);
             console.log(response.data["CATALOG"][0],"from index ")
           }
