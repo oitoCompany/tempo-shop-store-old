@@ -4576,6 +4576,7 @@ export default function App() {
            // setCatalog(response.data["CATALOG"])
             setproducts(response.data["CATALOG"]);
             console.log(response.data["CATALOG"][0],"from index ")
+            setisPower(true);
           }
           // setmessage(response.data["MESSAGE"])
       });

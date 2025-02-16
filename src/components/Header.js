@@ -256,10 +256,16 @@ const handleSearchClick = () => {
                     src={searchIMG}
                     type="submit"
                     onClick={handleSearchClick}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault(); // Prevent default behavior (e.g., scrolling)
+                          handleSearchClick(); // Do something else
+                      }
+                  }}
                   //  onClick={(e) => handleSearch(e)}
                     // onClick={(e) => handleSubmit(e)}
                   >
-                    <img className="searchIMG" src={searchIMG}></img>
+                    <img className="searchIMG"tabIndex={0} src={searchIMG}></img>
                   </div>
                 </form>
               </div>
