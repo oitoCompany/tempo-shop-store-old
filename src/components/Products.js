@@ -115,6 +115,7 @@ export default function Products(props) {
         Eligibility={Eligibility}
         handelShowCart={handelShowCart}
         matnr={product.MATNR}
+        kepin={product.KPEIN}
         price={product.YPRICE_NETO_TAX}
         name={product.MAKTX}
         image={product.YFILE}
@@ -143,8 +144,8 @@ export default function Products(props) {
   
   // Determine the view based on the state of filtered products
   const view = useMemo(() => {
-    if (filteredProducts.length === 0 && searchTerm) return <NoResults />;
-    if (filteredProducts.length === 0) return <LoadingProducts />;
+    if (filteredProducts.length === 0 ) {return <NoResults />};
+  //  if (filteredProducts.length === 0) return <LoadingProducts />;
     return (
       <CSSTransitionGroup
         transitionName="fadeIn"

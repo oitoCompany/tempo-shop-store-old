@@ -20,6 +20,7 @@ const Product = memo(function Product(props) {
     YDESERVE_TYPE,
     Catalog,
     category,
+    kepin,
     productQuantity,
     openModal,
     Eligibility,
@@ -44,7 +45,7 @@ const Product = memo(function Product(props) {
   useEffect(() => {
     if (autoAdd) {
   
-      productaddToCart(id, name, matnr, price, id, productQuantity, category); // Automatically add the product
+      productaddToCart(id, name, matnr, price, id, productQuantity, kepin, category); // Automatically add the product
     }
 
     if (ClearChoose) {
@@ -60,7 +61,7 @@ const Product = memo(function Product(props) {
   }, []);
 
 
-  const productaddToCart = (fimage, fname, fmatnr, fprice, fid, fquantity, fcategory) => {
+  const productaddToCart = (fimage, fname, fmatnr, fprice, fid, fquantity,fkepin, fcategory) => {
 
     setclickOnAddToCart(true);
      selectedProduct = ({
@@ -70,7 +71,8 @@ const Product = memo(function Product(props) {
       price: fprice,
       id: fid,
       quantity: fquantity,
-      category: fcategory
+      category: fcategory,
+      kepin : fkepin
     });
 
     CurrentProduct = selectedProduct;
@@ -78,7 +80,7 @@ const Product = memo(function Product(props) {
     const Eligibilities = YDESERVE_TYPE;
     for (let i = 0; i < Eligibilities.length; i++) {
       for (let j = 0; j < Eligibility.length; j++) {
-        if (Eligibilities[i] === Eligibility[j].CATEGORY && Eligibility[j].QTY >= selectedProduct.quantity)
+        if (Eligibilities[i] === Eligibility[j].CATEGORY && Eligibility[j].QTY >= selectedProduct.kepin)
           EligibilitiesList.push(Eligibility[j]);
       }
     }
@@ -91,7 +93,7 @@ const Product = memo(function Product(props) {
         if (count >= selectedProduct.quantity) {
          selectedProduct.eligibility = EligibilitiesList[0].CATEGORY;
           
-          Eligibility.filter(a => a.CATEGORY === EligibilitiesList[0].CATEGORY)[0].QTY -= selectedProduct.quantity;
+          Eligibility.filter(a => a.CATEGORY === EligibilitiesList[0].CATEGORY)[0].QTY -= selectedProduct.kepin;
           setListOfEligibilities([]);
           addCartOneElig(selectedProduct);
           setTimeout(() => {
@@ -127,7 +129,7 @@ const Product = memo(function Product(props) {
   const handelChooseEligibility = (event) => {
     const Text = Eligibility.filter(a => a.YDESC === event.currentTarget.innerText)[0].CATEGORY;
     CurrentProduct.eligibility = Text;
-    Eligibility.filter(a => a.CATEGORY === Text)[0].QTY -= selectedProduct.quantity;
+    Eligibility.filter(a => a.CATEGORY === Text)[0].QTY -= selectedProduct.kepin;
     addToCart(CurrentProduct);
     setclickOnAddToCart(false);
     clearTimeout(timeOut);
@@ -148,6 +150,7 @@ const Product = memo(function Product(props) {
   let pid = id;
   let pcategory = category;
   let pquantity = productQuantity;
+  let pkepin = kepin;
   
   const handelselectedEligibility = (EligibilitiesList) => {
 
@@ -233,6 +236,7 @@ const Product = memo(function Product(props) {
               pprice,
               pid,
               pquantity,
+              pkepin,
               pcategory
             )}
           />
@@ -256,6 +260,7 @@ const Product = memo(function Product(props) {
             pprice,
             pid,
             pquantity,
+            pkepin,
             pcategory
           )}
         >
