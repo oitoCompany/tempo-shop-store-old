@@ -160,7 +160,7 @@ const Product = memo(function Product(props) {
           setListOfEligibilities(
             EligibilitiesList.map(
               zacaut => {
-                if (zacaut.QTY >= productQuantity)
+                if (zacaut.QTY >= selectedProduct.kepin)
                   return (
                     <button className="eligibilityInput" key={zacaut.YDESC} onClick={handelChooseEligibility} >{zacaut.YDESC}</button>
                   )
