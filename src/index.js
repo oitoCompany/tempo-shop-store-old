@@ -4748,7 +4748,7 @@ export default function App() {
     e.preventDefault();
     let index = cart.findIndex(x => x.id === p.id);
     let count = Eligibility.filter(a => a.CATEGORY === p.eligibility)[0].QTY;
-    if (index >= 0 && count >= 1) {
+    if (index >= 0 && count >= cart[index].kepin) {
       cart[index].quantity++;
       sumTotalAmount(cart);
       setcart(cart);
@@ -4813,7 +4813,7 @@ export default function App() {
 
             console.log(empzakot - 1, count, "empzakot - 1 > count");
 
-            if (empzakot - 1 > count) {
+            if (empzakot - CurrentProduct_l.KPEIN > count) {
                 Eligibility.filter(a => a.CATEGORY === Text)[0].QTY += CurrentProduct_l.KPEIN;
             }
         }
